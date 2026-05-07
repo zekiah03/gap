@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { SITUATION_CARDS } from "@/lib/cards";
 import { saveEntry } from "@/lib/storage";
+import { contributeToTwin } from "@/lib/contribute";
 import { Entry, RelationshipTag, SituationCard } from "@/types";
 
 const RELATIONSHIP_TAGS: RelationshipTag[] = [
@@ -60,6 +61,13 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
       emotionIntensity: intensity,
     };
     saveEntry(entry);
+    contributeToTwin('gap', {
+      situation: entry.situationText,
+      relationship: entry.relationship,
+      emotionIntensity: entry.emotionIntensity,
+      honne: entry.honne,
+      tatemae: entry.tatemae,
+    });
     // reset
     setStep("card");
     setSelectedCard(null);
