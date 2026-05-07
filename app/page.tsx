@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import ProbeForm from "@/components/ProbeForm";
 import EntryList from "@/components/EntryList";
-import GapChart from "@/components/GapChart";
+import DashboardView from "@/components/DashboardView";
 import { loadEntries, deleteEntry } from "@/lib/storage";
 import { Entry } from "@/types";
 
@@ -44,7 +44,7 @@ export default function Home() {
               [
                 { id: "record", label: "記録する" },
                 { id: "list", label: `一覧（${entries.length}）` },
-                { id: "chart", label: "ギャップマップ" },
+                { id: "chart", label: "分析" },
               ] as { id: Tab; label: string }[]
             ).map(({ id, label }) => (
               <button
@@ -76,7 +76,7 @@ export default function Home() {
         {tab === "list" && (
           <EntryList entries={entries} onDelete={handleDelete} />
         )}
-        {tab === "chart" && <GapChart entries={entries} />}
+        {tab === "chart" && <DashboardView entries={entries} />}
       </main>
     </div>
   );

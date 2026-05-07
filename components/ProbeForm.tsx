@@ -11,6 +11,12 @@ const RELATIONSHIP_TAGS: RelationshipTag[] = [
 ];
 
 const CATEGORIES = ["すべて", "職場", "家族", "恋愛", "友人", "社会"] as const;
+const VALENCES = ["すべて", "ネガティブ", "ニュートラル", "ポジティブ"] as const;
+const VALENCE_MAP: Record<string, string> = {
+  ネガティブ: "negative",
+  ニュートラル: "neutral",
+  ポジティブ: "positive",
+};
 
 interface ProbeFormProps {
   onSaved: () => void;
@@ -19,6 +25,7 @@ interface ProbeFormProps {
 export default function ProbeForm({ onSaved }: ProbeFormProps) {
   const [step, setStep] = useState<"card" | "write">("card");
   const [selectedCategory, setSelectedCategory] = useState<string>("すべて");
+  const [selectedValence, setSelectedValence] = useState<string>("すべて");
   const [selectedCard, setSelectedCard] = useState<SituationCard | null>(null);
   const [customSituation, setCustomSituation] = useState("");
   const [useCustom, setUseCustom] = useState(false);
@@ -27,10 +34,13 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
   const [relationship, setRelationship] = useState<RelationshipTag | "">("");
   const [intensity, setIntensity] = useState(5);
 
-  const filteredCards =
-    selectedCategory === "すべて"
-      ? SITUATION_CARDS
-      : SITUATION_CARDS.filter((c) => c.category === selectedCategory);
+  const filteredCards = SITUATION_CARDS.filter((c) => {
+    const catOk = selectedCategory === "すべて" || c.category === selectedCategory;
+    const valOk =
+      selectedValence === "すべて" ||
+      c.valence === VALENCE_MAP[selectedValence];
+    return catOk && valOk;
+  });
 
   const situationText = useCustom ? customSituation : selectedCard?.text ?? "";
 
@@ -90,6 +100,35 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
               {cat}
             </button>
           ))}
+        </div>
+
+        {/* 感情価フィルタ */}
+        <div className="flex flex-wrap gap-2">
+          {VALENCES.map((v) => {
+            const colors: Record<string, string> = {
+              すべて: "bg-gray-100 text-gray-600",
+              ネガティブ: "bg-rose-100 text-rose-600",
+              ニュートラル: "bg-gray-100 text-gray-600",
+              ポジティブ: "bg-emerald-100 text-emerald-600",
+            };
+            const activeColors: Record<string, string> = {
+              すべて: "bg-gray-700 text-white",
+              ネガティブ: "bg-rose-500 text-white",
+              ニュートラル: "bg-gray-500 text-white",
+              ポジティブ: "bg-emerald-500 text-white",
+            };
+            return (
+              <button
+                key={v}
+                onClick={() => setSelectedValence(v)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  selectedValence === v ? activeColors[v] : colors[v]
+                }`}
+              >
+                {v}
+              </button>
+            );
+          })}
         </div>
 
         {/* 既製カード一覧 */}

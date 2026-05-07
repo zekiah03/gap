@@ -16,6 +16,8 @@ export interface SituationCard {
   id: string;
   text: string;
   category: "職場" | "家族" | "恋愛" | "友人" | "社会";
+  /** 感情価：理論論文 §10.3 の設計原則（ネガ/ニュートラル/ポジを均等配分） */
+  valence: "negative" | "neutral" | "positive";
 }
 
 export interface Entry {
