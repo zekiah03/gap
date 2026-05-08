@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { SITUATION_CARDS } from "@/lib/cards";
 import { saveEntry } from "@/lib/storage";
-import { Entry, RelationshipTag, SituationCard } from "@/types";
+import { contributeToTwin } from "@/lib/contribute";
+import { Entry, RelationshipTag, SituationCard, WantToSay } from "@/types";
 
 const RELATIONSHIP_TAGS: RelationshipTag[] = [
   "上司", "同僚", "部下", "親", "兄弟姉妹",
@@ -33,6 +34,7 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
   const [tatemae, setTatemae] = useState("");
   const [relationship, setRelationship] = useState<RelationshipTag | "">("");
   const [intensity, setIntensity] = useState(5);
+  const [wantToSay, setWantToSay] = useState<WantToSay | "">("");
 
   const filteredCards = SITUATION_CARDS.filter((c) => {
     const catOk = selectedCategory === "すべて" || c.category === selectedCategory;
@@ -68,8 +70,17 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
       tatemae,
       relationship: relationship as RelationshipTag,
       emotionIntensity: intensity,
+      wantToSay: wantToSay || undefined,
     };
     saveEntry(entry);
+    contributeToTwin('gap', {
+      situation: entry.situationText,
+      relationship: entry.relationship,
+      emotionIntensity: entry.emotionIntensity,
+      honne: entry.honne,
+      tatemae: entry.tatemae,
+      wantToSay: entry.wantToSay ?? null,
+    });
     // reset
     setStep("card");
     setSelectedCard(null);
@@ -79,6 +90,7 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
     setTatemae("");
     setRelationship("");
     setIntensity(5);
+    setWantToSay("");
     onSaved();
   }
 
@@ -258,6 +270,35 @@ export default function ProbeForm({ onSaved }: ProbeFormProps) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* SUST v0.3: いつか言いたいか? */}
+      <div>
+        <label className="block text-sm font-medium text-gray-600 mb-2">
+          この本音、いつかは相手に伝えたい？
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {([
+            { key: 'yes',    label: '伝えたい' },
+            { key: 'no',     label: '伝えなくていい' },
+            { key: 'unsure', label: 'わからない' },
+          ] as { key: WantToSay; label: string }[]).map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setWantToSay(key)}
+              className={`px-3 py-1 rounded-full text-sm transition-colors ${
+                wantToSay === key
+                  ? "bg-emerald-600 text-white"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-gray-400 mt-1">
+          任意です。 ツインの関係性開放度推定の精度が上がります。
+        </p>
       </div>
 
       {/* 保存ボタン */}

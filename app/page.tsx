@@ -5,6 +5,7 @@ import ProbeForm from "@/components/ProbeForm";
 import EntryList from "@/components/EntryList";
 import DashboardView from "@/components/DashboardView";
 import { loadEntries, deleteEntry } from "@/lib/storage";
+import { contributeToTwin } from "@/lib/contribute";
 import { Entry } from "@/types";
 
 type Tab = "record" | "list" | "chart";
@@ -20,6 +21,21 @@ export default function Home() {
   useEffect(() => {
     reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (entries.length === 0) return;
+    if (sessionStorage.getItem('gap_contributed')) return;
+    sessionStorage.setItem('gap_contributed', '1');
+    contributeToTwin('gap', {
+      entryCount: entries.length,
+      relationships: Object.entries(
+        entries.reduce((acc: Record<string, number>, e) => {
+          acc[e.relationship] = (acc[e.relationship] ?? 0) + 1;
+          return acc;
+        }, {})
+      ).map(([relationship, count]) => ({ relationship, count })),
+    });
+  }, [entries]);
 
   function handleDelete(id: string) {
     deleteEntry(id);

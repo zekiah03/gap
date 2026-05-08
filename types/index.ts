@@ -20,6 +20,9 @@ export interface SituationCard {
   valence: "negative" | "neutral" | "positive";
 }
 
+// SUST v0.3: 「いつか本音を伝えたい?」 関係性開放度の真のプロキシ
+export type WantToSay = 'yes' | 'no' | 'unsure';
+
 export interface Entry {
   id: string;
   createdAt: string; // ISO string
@@ -30,4 +33,6 @@ export interface Entry {
   relationship: RelationshipTag;
   // 0-10 の感情強度（本音側）
   emotionIntensity: number;
+  // SUST v0.3: いつか言いたいか? (optional, 既存エントリ互換)
+  wantToSay?: WantToSay;
 }
